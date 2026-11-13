@@ -1,0 +1,51 @@
+l2-universal-dumper/
+├── CMakeLists.txt
+├── README.md
+├── cmake/
+│   └── CapstoneConfig.cmake.in
+├── include/l2ud/
+│   ├── core/
+│   │   ├── error.hpp
+│   │   ├── log.hpp
+│   │   ├── hashing.hpp
+│   │   └── types.hpp
+│   ├── pe/
+│   │   ├── pe_image.hpp
+│   │   └── pe_parser.hpp
+│   ├── scan/
+│   │   ├── aob_pattern.hpp
+│   │   └── aob_scanner.hpp
+│   ├── disasm/
+│   │   └── disassembler.hpp
+│   ├── analysis/
+│   │   ├── fingerprint.hpp
+│   │   ├── struct_analyzer.hpp
+│   │   ├── func_analyzer.hpp
+│   │   └── build_diff.hpp
+│   ├── validation/
+│   │   └── validator.hpp
+│   ├── storage/
+│   │   ├── database.hpp
+│   │   └── exporter.hpp
+│   └── app/
+│       ├── analyze_job.hpp
+│       └── main_window.hpp
+├── src/
+│   ├── core/          (*.cpp espelham include/core)
+│   ├── pe/
+│   ├── scan/
+│   ├── disasm/
+│   ├── analysis/
+│   ├── validation/
+│   ├── storage/
+│   └── app/
+├── tests/
+│   ├── CMakeLists.txt
+│   ├── test_pe_parser.cpp
+│   ├── test_aob_scanner.cpp
+│   ├── test_validation.cpp
+│   ├── test_exporter.cpp
+│   └── fixtures/
+│       └── make_fixtures.cpp
+└── ui/
+    └── main_window.ui

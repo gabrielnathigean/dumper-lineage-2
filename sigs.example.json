@@ -1,0 +1,12 @@
+[
+  {"name": "ExampleGlobal",
+   "pattern": "48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 8B 87",
+   "kind": "rip", "disp_offset": 3, "insn_len": 7, "sections": [".text"],
+   "confirm_string": "texto referenciado pela mesma função (opcional)"},
+  {"name": "ExampleFieldOffset",
+   "pattern": "48 8D 0D ?? ?? ?? ?? 8B 87 ?? ?? 00 00 C3",
+   "kind": "imm", "disp_offset": 9, "size": 4},
+  {"name": "ExampleX86Global",
+   "pattern": "A1 ?? ?? ?? ?? 68 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 80 ?? ?? 00 00 5D C3",
+   "kind": "abs", "disp_offset": 1, "confirm_import": "GetTickCount"}
+]

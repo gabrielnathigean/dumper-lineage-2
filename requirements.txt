@@ -1,0 +1,4 @@
+# OPCIONAL. O modo Lite funciona só com a biblioteca padrão do Python 3.10+.
+# Capstone habilita o modo avançado: desassemblagem x86/x64, xrefs por decodificação real,
+# Structure Discovery e a aba Disassembly da GUI.
+capstone>=5.0.1

@@ -1,0 +1,59 @@
+cmake_minimum_required(VERSION 3.24)
+project(l2ud VERSION 0.1.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "" FORCE)
+endif()
+
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core)
+qt_standard_project_setup()
+
+# Capstone (disassembler). Fallback: Zydis via find_package.
+find_package(capstone CONFIG QUIET)
+if (NOT capstone_FOUND)
+  find_path(CAPSTONE_INCLUDE_DIR capstone/capstone.h)
+  find_library(CAPSTONE_LIBRARY NAMES capstone)
+  if (NOT CAPSTONE_INCLUDE_DIR OR NOT CAPSTONE_LIBRARY)
+    message(FATAL_ERROR "Capstone não encontrado. Instale capstone-dev ou defina CAPSTONE_INCLUDE_DIR/CAPSTONE_LIBRARY.")
+  endif()
+  add_library(capstone UNKNOWN IMPORTED)
+  set_target_properties(capstone PROPERTIES
+    IMPORTED_LOCATION "${CAPSTONE_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES "${CAPSTONE_INCLUDE_DIR}")
+endif()
+
+find_package(SQLite3 REQUIRED)
+find_package(OpenSSL REQUIRED)
+
+add_library(l2ud_core STATIC
+  src/core/log.cpp src/core/hashing.cpp
+  src/pe/pe_parser.cpp
+  src/scan/aob_pattern.cpp src/scan/aob_scanner.cpp
+  src/disasm/disassembler.cpp
+  src/analysis/fingerprint.cpp
+  src/analysis/struct_analyzer.cpp
+  src/analysis/func_analyzer.cpp
+  src/analysis/build_diff.cpp
+  src/validation/validator.cpp
+  src/storage/database.cpp src/storage/exporter.cpp
+)
+target_include_directories(l2ud_core PUBLIC include)
+target_link_libraries(l2ud_core PUBLIC capstone SQLite::SQLite3 OpenSSL::Crypto)
+target_compile_options(l2ud_core PRIVATE -Wall -Wextra -Wpedantic)
+
+add_executable(l2ud_gui
+  src/app/main.cpp
+  src/app/analyze_job.cpp
+  src/app/main_window.cpp
+)
+qt_add_resources(l2ud_gui "ui" FILES ui/main_window.ui)
+target_link_libraries(l2ud_gui PRIVATE l2ud_core Qt6::Widgets)
+set_target_properties(l2ud_gui PROPERTIES WIN32_EXECUTABLE ON)
+
+enable_testing()
+add_subdirectory(tests)

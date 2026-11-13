@@ -1,0 +1,44 @@
+#pragma once
+#include <cstdint>
+#include <string>
+#include <optional>
+#include <variant>
+
+namespace l2ud {
+
+// Endereçamento explícito — NUNCA misturar.
+enum class AddressKind { RVA, VA, FileOffset };
+
+struct Address {
+    AddressKind kind;
+    std::uint64_t value;
+};
+
+enum class ValidationStatus {
+    CONFIRMED, PROBABLE, CANDIDATE, AMBIGUOUS, NOT_FOUND
+};
+
+struct Evidence {
+    std::string source;   // "aob", "xref", "export", "heuristic"
+    std::string detail;
+    std::optional<std::uint64_t> occurrenceVa;
+    std::string module;
+};
+
+struct Candidate {
+    Address address;
+    std::string label;
+    ValidationStatus status = ValidationStatus::CANDIDATE;
+    std::vector<Evidence> evidence;
+    std::string notes; // limitações / motivos
+};
+
+struct BuildId {
+    std::string sha256;
+    std::string path;
+    std::string arch;     // "x86" | "x64"
+    std::string peKind;   // "PE32" | "PE32+"
+    std::string fingerprint;
+};
+
+} // namespace l2ud

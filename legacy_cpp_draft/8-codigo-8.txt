@@ -1,0 +1,105 @@
+#include "l2ud/pe/pe_image.hpp"
+#include "l2ud/core/log.hpp"
+#include <cstring>
+
+namespace l2ud {
+namespace {
+template <class T> bool rd(const std::vector<std::uint8_t>& b, std::size_t off, T& out) {
+    if (off + sizeof(T) > b.size()) return false;
+    std::memcpy(&out, b.data() + off, sizeof(T));
+    return true;
+}
+constexpr std::uint16_t kMZ = 0x5A4D;
+constexpr std::uint32_t kPE = 0x00004550;
+}
+
+std::optional<PeImage> PeImage::load(std::vector<std::uint8_t> raw, Error& err) {
+    if (raw.size() < 64) { err = Error::m(ErrorCode::MalformedPe, "arquivo curto"); return std::nullopt; }
+
+    std::uint16_t mz = 0; rd(raw, 0, mz);
+    if (mz != kMZ) { err = Error::m(ErrorCode::MalformedPe, "assinatura MZ ausente"); return std::nullopt; }
+
+    std::uint32_t lfanew = 0; rd(raw, 0x3C, lfanew);
+    if (lfanew + 24 > raw.size()) { err = Error::m(ErrorCode::MalformedPe, "e_lfanew inválido"); return std::nullopt; }
+    std::uint32_t sig = 0; rd(raw, lfanew, sig);
+    if (sig != kPE) { err = Error::m(ErrorCode::MalformedPe, "assinatura PE ausente"); return std::nullopt; }
+
+    std::uint16_t machine = 0; rd(raw, lfanew + 4, machine);
+    std::uint16_t numSections = 0; rd(raw, lfanew + 6, numSections);
+    std::uint16_t optSize = 0; rd(raw, lfanew + 20, optSize);
+    if (numSections == 0 || numSections > 96) { err = Error::m(ErrorCode::MalformedPe, "numSections fora do esperado"); return std::nullopt; }
+
+    std::size_t optOff = static_cast<std::size_t>(lfanew) + 24;
+    if (optOff + optSize > raw.size() || optSize < 32) { err = Error::m(ErrorCode::MalformedPe, "optional header truncado"); return std::nullopt; }
+
+    std::uint16_t magic = 0; rd(raw, optOff, magic);
+    PeImage img;
+    if (magic == 0x10B) img.kind_ = PeKind::PE32;
+    else if (magic == 0x20B) img.kind_ = PeKind::PE32Plus;
+    else { err = Error::m(ErrorCode::Unsupported, "magic de optional header desconhecido"); return std::nullopt; }
+
+    if (img.kind_ == PeKind::PE32Plus) {
+        std::uint64_t ib = 0; rd(raw, optOff + 24, ib); img.imageBase_ = ib;
+    } else {
+        std::uint32_t ib = 0; rd(raw, optOff + 28, ib); img.imageBase_ = ib;
+    }
+    rd(raw, optOff + 16, img.entryPoint_);
+
+    // Seções
+    std::size_t secOff = optOff + optSize;
+    for (std::uint16_t i = 0; i < numSections; ++i, secOff += 40) {
+        if (secOff + 40 > raw.size()) { err = Error::m(ErrorCode::MalformedPe, "seção truncada"); return std::nullopt; }
+        Section s{};
+        s.name.assign(reinterpret_cast<const char*>(raw.data() + secOff), 8);
+        s.name = s.name.c_str();
+        rd(raw, secOff + 12, s.virtualAddress);
+        rd(raw, secOff + 8, s.virtualSize);
+        rd(raw, secOff + 20, s.rawPointer);
+        rd(raw, secOff + 16, s.rawSize);
+        rd(raw, secOff + 36, s.characteristics);
+        img.sections_.push_back(std::move(s));
+    }
+
+    img.raw_ = std::move(raw);
+    log_info("PE carregado: " + std::to_string(img.raw_.size()) + " bytes, " + std::to_string(img.sections_.size()) + " seções");
+    err = Error::ok_();
+    return img;
+}
+
+std::optional<std::uint32_t> PeImage::rva_to_file(std::uint32_t rva) const {
+    for (const auto& s : sections_) {
+        if (rva >= s.virtualAddress && rva < s.virtualAddress + s.virtualSize) {
+            std::uint32_t delta = rva - s.virtualAddress;
+            if (delta >= s.rawSize) return std::nullopt; // RVA em memória sem espelho em disco
+            return s.rawPointer + delta;
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<std::uint32_t> PeImage::file_to_rva(std::uint32_t off) const {
+    for (const auto& s : sections_) {
+        if (off >= s.rawPointer && off < s.rawPointer + s.rawSize)
+            return s.virtualAddress + (off - s.rawPointer);
+    }
+    return std::nullopt;
+}
+
+const Section* PeImage::section_for_rva(std::uint32_t rva) const {
+    for (const auto& s : sections_)
+        if (rva >= s.virtualAddress && rva < s.virtualAddress + s.virtualSize) return &s;
+    return nullptr;
+}
+
+std::optional<std::uint64_t> PeImage::rva_to_va(std::uint32_t rva) const {
+    if (!section_for_rva(rva)) return std::nullopt;
+    return imageBase_ + rva;
+}
+
+bool PeImage::read_bytes(std::uint32_t off, std::size_t n, std::vector<std::uint8_t>& out) const {
+    if (off + n > raw_.size()) return false;
+    out.assign(raw_.begin() + off, raw_.begin() + off + n);
+    return true;
+}
+
+} // namespace l2ud

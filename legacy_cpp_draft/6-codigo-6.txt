@@ -1,0 +1,14 @@
+#include "l2ud/core/log.hpp"
+
+namespace l2ud {
+Log& Log::instance() { static Log l; return l; }
+void Log::set_level(LogLevel lv) { std::lock_guard g(mtx_); level_ = lv; }
+void Log::write(LogLevel lv, const std::string& msg) {
+    std::lock_guard g(mtx_);
+    if (static_cast<int>(lv) < static_cast<int>(level_)) return;
+    const char* tag = lv == LogLevel::Debug ? "DBG"
+                    : lv == LogLevel::Info ? "INF"
+                    : lv == LogLevel::Warn ? "WRN" : "ERR";
+    std::fprintf(stderr, "[%s] %s\n", tag, msg.c_str());
+}
+}

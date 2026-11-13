@@ -1,0 +1,19 @@
+#pragma once
+#include <string>
+#include <utility>
+
+namespace l2ud {
+
+enum class ErrorCode {
+    Ok, Io, MalformedPe, Unsupported, OutOfRange, NotFound, DecompressionNotSupported
+};
+
+struct Error {
+    ErrorCode code = ErrorCode::Ok;
+    std::string message;
+    bool ok() const { return code == ErrorCode::Ok; }
+    static Error ok_() { return {}; }
+    static Error m(ErrorCode c, std::string s) { return {c, std::move(s)}; }
+};
+
+} // namespace l2ud

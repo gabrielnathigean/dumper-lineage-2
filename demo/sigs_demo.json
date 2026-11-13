@@ -1,0 +1,50 @@
+[
+ {
+  "name": "DemoGlobal",
+  "pattern": "48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 8B 87",
+  "kind": "rip",
+  "disp_offset": 3,
+  "insn_len": 7,
+  "confirm_string": "hello world"
+ },
+ {
+  "name": "DemoSoPadrao",
+  "pattern": "48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 8B 87 34 12 00 00 C3",
+  "kind": "rip",
+  "disp_offset": 3,
+  "insn_len": 7
+ },
+ {
+  "name": "DemoCampo",
+  "pattern": "48 8D 0D ?? ?? ?? ?? 8B 87 ?? ?? 00 00 C3",
+  "kind": "imm",
+  "disp_offset": 9,
+  "size": 4
+ },
+ {
+  "name": "DemoPadraoCurto",
+  "pattern": "48 8B 05 ?? ?? ?? ??",
+  "kind": "rip",
+  "disp_offset": 3,
+  "insn_len": 7
+ },
+ {
+  "name": "DemoInsnLenErrado",
+  "pattern": "48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 8B 87",
+  "kind": "rip",
+  "disp_offset": 3,
+  "insn_len": 6
+ },
+ {
+  "name": "DemoNaoExiste",
+  "pattern": "DE AD BE EF 12 34 56 78",
+  "kind": "hit"
+ },
+ {
+  "name": "DemoX86",
+  "pattern": "A1 ?? ?? ?? ?? 68 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 80 34 12 00 00 5D C3",
+  "kind": "abs",
+  "disp_offset": 1,
+  "confirm_string": "hello x86"
+ }
+]

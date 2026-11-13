@@ -1,0 +1,25 @@
+#pragma once
+#include <string>
+#include <mutex>
+#include <cstdio>
+
+namespace l2ud {
+
+enum class LogLevel { Debug, Info, Warn, Error };
+
+class Log {
+public:
+    static Log& instance();
+    void set_level(LogLevel lv);
+    void write(LogLevel lv, const std::string& msg);
+private:
+    std::mutex mtx_;
+    LogLevel level_ = LogLevel::Info;
+};
+
+inline void log_info(const std::string& m) { Log::instance().write(LogLevel::Info, m); }
+inline void log_warn(const std::string& m) { Log::instance().write(LogLevel::Warn, m); }
+inline void log_error(const std::string& m) { Log::instance().write(LogLevel::Error, m); }
+inline void log_debug(const std::string& m) { Log::instance().write(LogLevel::Debug, m); }
+
+} // namespace l2ud

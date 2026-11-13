@@ -1,0 +1,66 @@
+#pragma once
+#include <vector>
+#include <string>
+#include <cstdint>
+#include <optional>
+#include "l2ud/core/error.hpp"
+
+namespace l2ud {
+
+enum class PeKind { PE32, PE32Plus, Unknown };
+
+struct Section {
+    std::string name;
+    std::uint32_t virtualAddress;
+    std::uint32_t virtualSize;
+    std::uint32_t rawPointer;
+    std::uint32_t rawSize;
+    std::uint32_t characteristics;
+    bool readable() const;
+    bool executable() const;
+};
+
+struct Export { std::string name; std::uint32_t rva; std::uint32_t ordinal; };
+struct Import { std::string dll; std::string name; std::uint32_t iatRva; };
+struct Reloc  { std::uint32_t rva; std::uint16_t type; };
+
+class PeImage {
+public:
+    static std::optional<PeImage> load(std::vector<std::uint8_t> rawData, Error& err);
+
+    const std::vector<std::uint8_t>& raw() const { return raw_; }
+    PeKind kind() const { return kind_; }
+    bool is64() const { return kind_ == PeKind::PE32Plus; }
+    std::uint64_t imageBase() const { return imageBase_; }
+    std::uint32_t entryPoint() const { return entryPoint_; }
+    const std::vector<Section>& sections() const { return sections_; }
+    const std::vector<Export>& exports() const { return exports_; }
+    const std::vector<Import>& imports() const { return imports_; }
+    const std::vector<Reloc>& relocations() const { return relocations_; }
+
+    // Mapeia file offset <-> RVA com bounds reais.
+    std::optional<std::uint32_t> rva_to_file(std::uint32_t rva) const;
+    std::optional<std::uint32_t> file_to_rva(std::uint32_t off) const;
+    const Section* section_for_rva(std::uint32_t rva) const;
+    std::optional<std::uint64_t> rva_to_va(std::uint32_t rva) const;
+    std::uint32_t size() const { return static_cast<std::uint32_t>(raw_.size()); }
+
+    // Reads seguras (retornam false em bounds inválidos).
+    bool read_bytes(std::uint32_t fileOff, std::size_t n, std::vector<std::uint8_t>& out) const;
+
+private:
+    std::vector<std::uint8_t> raw_;
+    PeKind kind_ = PeKind::Unknown;
+    std::uint64_t imageBase_ = 0;
+    std::uint32_t entryPoint_ = 0;
+    std::vector<Section> sections_;
+    std::vector<Export> exports_;
+    std::vector<Import> imports_;
+    std::vector<Reloc> relocations_;
+    PeImage() = default;
+};
+
+inline bool Section::readable() const { return !(characteristics & 0x02000000); } // !discardable
+inline bool Section::executable() const { return characteristics & 0x20000000; }
+
+} // namespace l2ud
