@@ -142,6 +142,23 @@ def first_scan(p, kind, value):
     return hits
 
 
+def range_scan(p, kind, lo, hi):
+    """First scan for stats that keep changing: every aligned value in [lo, hi]."""
+    if np is None:
+        sys.exit("range scan needs numpy: pip install numpy")
+    fmt, al = TYPES[kind]
+    dt = np.dtype(fmt)
+    hits = []
+    for base, n in p.rw_regions():
+        data = p.read(base, n)
+        if not data:
+            continue
+        arr = np.frombuffer(data[: len(data) // al * al], dtype=dt)
+        idx = np.nonzero((arr >= lo) & (arr <= hi))[0]
+        hits.extend((base + idx * al).tolist())
+    return hits
+
+
 def next_scan(p, hits, kind, value):
     fmt, al = TYPES[kind]
     pat = struct.pack(fmt, float(value) if kind[0] == "f" else int(value))
@@ -157,6 +174,43 @@ def next_scan(p, hits, kind, value):
                 keep.append(a)
         i = j + 1
     return keep
+
+
+def read_vals(p, addrs, kind):
+    """Current value of every address (coalesced reads). Missing -> None."""
+    fmt, al = TYPES[kind]
+    out, addrs, i = {}, sorted(addrs), 0
+    while i < len(addrs):
+        start, j = addrs[i], i
+        while j + 1 < len(addrs) and addrs[j + 1] - start < (1 << 20) and addrs[j + 1] - addrs[j] < 0x10000:
+            j += 1
+        win = p.read(start, addrs[j] - start + al)
+        for a in addrs[i:j + 1]:
+            ok = win and a - start + al <= len(win)
+            out[a] = struct.unpack_from(fmt, win, a - start)[0] if ok else None
+        i = j + 1
+    return out
+
+
+def track(p, hits, kind, seconds, interval, min_up, cap):
+    """For stats that regenerate: keep candidates that never go down, rise at least min_up
+    times and stay <= cap. Static decoys (no change) and unrelated numbers drop out."""
+    import time
+    prev = read_vals(p, hits, kind)
+    alive = {a for a, v in prev.items() if v is not None}
+    ups = dict.fromkeys(alive, 0)
+    t_end = time.time() + seconds
+    while time.time() < t_end and alive:
+        time.sleep(interval)
+        cur = read_vals(p, alive, kind)
+        for a in list(alive):
+            v, o = cur.get(a), prev[a]
+            if v is None or v < o or v > cap:
+                alive.discard(a)
+            elif v > o:
+                ups[a] += 1
+        prev.update({a: v for a, v in cur.items() if v is not None})
+    return sorted(a for a in alive if ups[a] >= min_up), prev
 
 
 def cluster(session, window):
@@ -258,8 +312,14 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("scan"); s.add_argument("name"); s.add_argument("value"); s.add_argument("--type", default="i32", choices=TYPES)
     s.add_argument("--reset", action="store_true")
-    c = sub.add_parser("cluster"); c.add_argument("--window", type=lambda x: int(x, 0), default=0x400)
+    c = sub.add_parser("cluster"); c.add_argument("--keep-dups", action="store_true");c.add_argument("--window", type=lambda x: int(x, 0), default=0x400)
     sub.add_parser("modules"); sub.add_parser("reset")
+    for nm, hp_ in (("snap", "save current values of the candidates"), ("dropped", "keep candidates that went down since snap")):
+        q = sub.add_parser(nm, help=hp_); q.add_argument("names", nargs="+")
+    t = sub.add_parser("track", help="narrow regenerating stats by watching them rise (no values needed)")
+    t.add_argument("names", nargs="+"); t.add_argument("--seconds", type=float, default=20)
+    t.add_argument("--interval", type=float, default=1.0); t.add_argument("--min-up", type=int, default=2)
+    t.add_argument("--cap", type=int, default=100000)
     r = sub.add_parser("ptr"); r.add_argument("addr", type=lambda x: int(x, 0))
     r.add_argument("--depth", type=int, default=3); r.add_argument("--maxoff", type=lambda x: int(x, 0), default=0x400)
     r.add_argument("--cap", type=int, default=20000); r.add_argument("--out", default="chains.json")
@@ -290,13 +350,47 @@ def main():
             print(f"{n:24s} base {b:#x} size {sz:#x}")
     elif a.cmd == "scan":
         old = None if a.reset else sess["hits"].get(a.name)
-        hits = first_scan(p, a.type, a.value) if old is None else next_scan(p, old, a.type, a.value)
+        if ":" in a.value:  # range LO:HI, for values that regenerate while we scan
+            lo, hi = (float(x) for x in a.value.split(":"))
+            hits = range_scan(p, a.type, lo, hi)
+        else:
+            hits = first_scan(p, a.type, a.value) if old is None else next_scan(p, old, a.type, a.value)
         sess["hits"][a.name], sess["type"][a.name] = hits, a.type
         json.dump(sess, open(a.session, "w"))
         print(f"{a.name}: {len(hits)} candidates" + ("  (first scan)" if old is None else "  (narrowed)"))
         if len(hits) <= 10:
             print("  ", ", ".join(hex(x) for x in hits))
+    elif a.cmd == "track":
+        for n in a.names:
+            keep, last = track(p, sess["hits"][n], sess["type"][n], a.seconds, a.interval, a.min_up, a.cap)
+            sess["hits"][n] = keep
+            print(f"{n}: {len(keep)} candidates rose steadily")
+            for x in keep[:10]:
+                print(f"   {x:#x} = {last[x]}")
+        json.dump(sess, open(a.session, "w"))
+    elif a.cmd == "snap":
+        sess["snap"] = {}
+        for n in a.names:
+            sess["snap"][n] = {str(x): v for x, v in read_vals(p, sess["hits"][n], sess["type"][n]).items()}
+            print(f"{n}: baseline of {len(sess['snap'][n])} candidates saved")
+        json.dump(sess, open(a.session, "w"))
+    elif a.cmd == "dropped":
+        for n in a.names:
+            now = read_vals(p, sess["hits"][n], sess["type"][n])
+            base = sess["snap"][n]
+            keep = sorted(x for x, v in now.items() if v is not None and base.get(str(x)) is not None and v < base[str(x)])
+            sess["hits"][n] = keep
+            print(f"{n}: {len(keep)} candidates went down")
+            for x in keep[:10]:
+                print(f"   {x:#x}: {base[str(x)]} -> {now[x]}")
+        json.dump(sess, open(a.session, "w"))
     elif a.cmd == "cluster":
+        seen = {}
+        for n, lst in sess["hits"].items():
+            for x in lst:
+                seen[x] = seen.get(x, 0) + 1
+        if not a.keep_dups:  # same addr in 2 stats = timer; but exact-value overlaps (hp==maxhp) are legit
+            sess["hits"] = {n: [x for x in lst if seen[x] == 1] for n, lst in sess["hits"].items()}
         res = cluster(sess, a.window)
         print(f"{len(res)} cluster(s), anchor = {list(sess['hits'])[0]}")
         for base, row in res[:30]:

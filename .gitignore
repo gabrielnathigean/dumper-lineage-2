@@ -39,3 +39,14 @@ wheels/
 .idea/
 *.swp
 *.swo
+
+# l2live runtime state (machine/run specific, regenerated)
+l2live/session.json
+l2live/*_snap.json
+l2live/namediff.json
+l2live/nameptr.json
+l2live/gauges_run2.json
+l2live/chains_hp.json
+l2live/chains_hp2.json
+l2live/t_*.json
+*.npz

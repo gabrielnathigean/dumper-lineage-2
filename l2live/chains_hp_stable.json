@@ -1,0 +1,466 @@
+[
+ {
+  "module": "Core.dll",
+  "rva": 2289360,
+  "offsets": [
+   8,
+   752
+  ],
+  "depth": 2
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289356,
+  "offsets": [
+   120,
+   752
+  ],
+  "depth": 2
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289352,
+  "offsets": [
+   232,
+   752
+  ],
+  "depth": 2
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289348,
+  "offsets": [
+   344,
+   752
+  ],
+  "depth": 2
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289336,
+  "offsets": [
+   680,
+   752
+  ],
+  "depth": 2
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289324,
+  "offsets": [
+   1016,
+   752
+  ],
+  "depth": 2
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289364,
+  "offsets": [
+   8,
+   52,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289372,
+  "offsets": [
+   8,
+   108,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Engine.dll",
+  "rva": 28616312,
+  "offsets": [
+   1,
+   120,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289360,
+  "offsets": [
+   120,
+   52,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289380,
+  "offsets": [
+   8,
+   164,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289388,
+  "offsets": [
+   8,
+   220,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289356,
+  "offsets": [
+   232,
+   52,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289384,
+  "offsets": [
+   120,
+   220,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289408,
+  "offsets": [
+   8,
+   332,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289352,
+  "offsets": [
+   344,
+   52,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289416,
+  "offsets": [
+   8,
+   388,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289404,
+  "offsets": [
+   120,
+   332,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289344,
+  "offsets": [
+   8,
+   456,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289348,
+  "offsets": [
+   456,
+   52,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289412,
+  "offsets": [
+   120,
+   388,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289432,
+  "offsets": [
+   8,
+   500,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289400,
+  "offsets": [
+   232,
+   332,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289440,
+  "offsets": [
+   8,
+   556,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289420,
+  "offsets": [
+   120,
+   500,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289396,
+  "offsets": [
+   344,
+   332,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289436,
+  "offsets": [
+   120,
+   556,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2282156,
+  "offsets": [
+   628,
+   120,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289392,
+  "offsets": [
+   456,
+   332,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289336,
+  "offsets": [
+   792,
+   52,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289320,
+  "offsets": [
+   8,
+   884,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289468,
+  "offsets": [
+   120,
+   780,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289484,
+  "offsets": [
+   8,
+   892,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289504,
+  "offsets": [
+   8,
+   948,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289316,
+  "offsets": [
+   120,
+   884,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289512,
+  "offsets": [
+   8,
+   1004,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289496,
+  "offsets": [
+   120,
+   948,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2286976,
+  "offsets": [
+   628,
+   456,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289312,
+  "offsets": [
+   232,
+   884,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289488,
+  "offsets": [
+   232,
+   948,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289304,
+  "offsets": [
+   456,
+   884,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289300,
+  "offsets": [
+   568,
+   884,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2287880,
+  "offsets": [
+   628,
+   904,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289296,
+  "offsets": [
+   680,
+   884,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "atiumdva.dll",
+  "rva": 6132768,
+  "offsets": [
+   732,
+   1016,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289288,
+  "offsets": [
+   904,
+   884,
+   752
+  ],
+  "depth": 3
+ },
+ {
+  "module": "Core.dll",
+  "rva": 2289284,
+  "offsets": [
+   1016,
+   884,
+   752
+  ],
+  "depth": 3
+ }
+]
