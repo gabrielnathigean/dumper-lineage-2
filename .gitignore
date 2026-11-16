@@ -53,3 +53,11 @@ l2live/t_*.json
 
 # local clone of the same repo
 l2-dump-ia/
+
+capture*.jsonl
+native/l2hook/build_*
+native/l2hook/*.dll
+native/l2hook/*.exe
+decoded*.jsonl
+l2live/_dbg*.py
+docs/rea/adrenalin_boot_identifiers.txt
