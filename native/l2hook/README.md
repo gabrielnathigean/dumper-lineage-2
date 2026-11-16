@@ -16,6 +16,7 @@ Binarios compilados nao sao versionados (.gitignore).
    (ou `hookclient.py --hex` so para captura bruta). Notas de protocolo: `l2live/PROTOCOL_NOTES.md`.
 
 ## Limites conhecidos
-- Nao testado (sem compilador aqui). O hook so pega `send`/`recv` do `engine.dll`; `nwindow.dll` usa `WSASend` (nao hookado).
-- Corpo dos pacotes cifrado (XOR por conexao apos o primeiro pacote); decifrar e a proxima etapa.
-- Se o servidor usa protecao anti-cheat/GameGuard (ha `npkcrypt.dll`/`npkpdb.dll` no cliente), a injecao pode ser bloqueada.
+- Hooks: `send`, `recv`, `WSASend` (so sincrono) e `sendto`, em todos os modulos carregados.
+- Validado so no Interlude (`L2.exe` x86). Moonland Classic (`l2.exe` -> `L2.bin`, x86): ainda nao testado.
+- Se o servidor usa GameGuard (ha `npkcrypt.dll`/`npkpdb.dll`), a injecao pode ser bloqueada.
+- `build_l2hook_v6` (le enderecos de %TEMP%\l2hook_addrs.txt) nao foi testada em cliente real; o caminho validado e `livedecode.py --mem`.
