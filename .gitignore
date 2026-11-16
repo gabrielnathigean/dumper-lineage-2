@@ -50,3 +50,6 @@ l2live/chains_hp.json
 l2live/chains_hp2.json
 l2live/t_*.json
 *.npz
+
+# local clone of the same repo
+l2-dump-ia/
